@@ -1,0 +1,298 @@
+# API Test Scenarios
+
+This file contains example HTTP requests to test the evolving API version system.
+You can use tools like curl, httpie, or REST Client VS Code extension.
+
+## Setup
+
+Start the server:
+```bash
+npm run dev
+```
+
+The server runs on `http://localhost:3000`
+
+---
+
+## Home/Documentation
+
+```bash
+curl http://localhost:3000
+```
+
+---
+
+## Client Registration
+
+### Register a V1 Client
+```bash
+curl -X POST http://localhost:3000/api/clients/register \
+  -H "Content-Type: application/json" \
+  -d '{"clientId": "my-v1-client", "version": "v1"}'
+```
+
+### Register a V2 Client
+```bash
+curl -X POST http://localhost:3000/api/clients/register \
+  -H "Content-Type: application/json" \
+  -d '{"clientId": "my-v2-client", "version": "v2"}'
+```
+
+### Register a V3 Client
+```bash
+curl -X POST http://localhost:3000/api/clients/register \
+  -H "Content-Type: application/json" \
+  -d '{"clientId": "my-v3-client", "version": "v3"}'
+```
+
+### List All Clients
+```bash
+curl http://localhost:3000/api/clients
+```
+
+### Update Client Version (Migration)
+```bash
+curl -X PUT http://localhost:3000/api/clients/my-v1-client/version \
+  -H "Content-Type: application/json" \
+  -d '{"version": "v2"}'
+```
+
+---
+
+## Task Operations with Different Versions
+
+### Scenario 1: V1 Client (Boolean Completion)
+
+#### List tasks as V1 client (using registered client ID)
+```bash
+curl http://localhost:3000/api/tasks \
+  -H "X-Client-Id: client-v1-demo"
+```
+
+#### List tasks as V1 client (using version header)
+```bash
+curl http://localhost:3000/api/tasks \
+  -H "X-API-Version: v1"
+```
+
+#### Create task as V1 client (with completed field)
+```bash
+curl -X POST http://localhost:3000/api/tasks \
+  -H "X-API-Version: v1" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Learn API versioning", "completed": false}'
+```
+
+#### Update task as V1 client
+```bash
+curl -X PUT http://localhost:3000/api/tasks/task-1 \
+  -H "X-API-Version: v1" \
+  -H "Content-Type: application/json" \
+  -d '{"completed": true}'
+```
+
+---
+
+### Scenario 2: V2 Client (Status Enum)
+
+#### List tasks as V2 client
+```bash
+curl http://localhost:3000/api/tasks \
+  -H "X-Client-Id: client-v2-demo"
+```
+
+#### Create task as V2 client (with status enum)
+```bash
+curl -X POST http://localhost:3000/api/tasks \
+  -H "X-API-Version: v2" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Build feature X",
+    "status": "in_progress",
+    "dueDate": "2026-03-01T00:00:00.000Z"
+  }'
+```
+
+#### Update task as V2 client
+```bash
+curl -X PUT http://localhost:3000/api/tasks/task-2 \
+  -H "X-API-Version: v2" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "done"}'
+```
+
+---
+
+### Scenario 3: V3 Client (Priority & Tags)
+
+#### List tasks as V3 client
+```bash
+curl http://localhost:3000/api/tasks \
+  -H "X-API-Version: v3"
+```
+
+#### Create task as V3 client (with priority and tags)
+```bash
+curl -X POST http://localhost:3000/api/tasks \
+  -H "X-API-Version: v3" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Critical bug fix",
+    "status": "todo",
+    "dueDate": "2026-02-18T00:00:00.000Z",
+    "priority": 5,
+    "tags": ["bug", "urgent", "production"]
+  }'
+```
+
+#### Update task as V3 client
+```bash
+curl -X PUT http://localhost:3000/api/tasks/task-3 \
+  -H "X-API-Version: v3" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "in_progress",
+    "priority": 4,
+    "tags": ["bug", "urgent", "in-review"]
+  }'
+```
+
+---
+
+### Scenario 4: Cross-Version Compatibility
+
+#### V1 client creates task, V2 client reads it
+```bash
+# V1 creates with completed=false
+curl -X POST http://localhost:3000/api/tasks \
+  -H "X-API-Version: v1" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Cross-version task", "completed": false}'
+
+# Note the task ID returned (e.g., task-4)
+
+# V2 reads same task - sees status="todo"
+curl http://localhost:3000/api/tasks/task-4 \
+  -H "X-API-Version: v2"
+
+# V3 reads same task - sees status="todo", priority=3, tags=[]
+curl http://localhost:3000/api/tasks/task-4 \
+  -H "X-API-Version: v3"
+```
+
+#### V3 client creates task, V1 client reads it
+```bash
+# V3 creates with full metadata
+curl -X POST http://localhost:3000/api/tasks \
+  -H "X-API-Version: v3" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Rich task",
+    "status": "done",
+    "priority": 5,
+    "tags": ["important"]
+  }'
+
+# Note the task ID returned (e.g., task-5)
+
+# V1 reads same task - sees completed=true (priority/tags stripped)
+curl http://localhost:3000/api/tasks/task-5 \
+  -H "X-API-Version: v1"
+
+# V2 reads same task - sees status="done" (priority/tags stripped)
+curl http://localhost:3000/api/tasks/task-5 \
+  -H "X-API-Version: v2"
+```
+
+---
+
+### Scenario 5: Task Deletion
+
+```bash
+curl -X DELETE http://localhost:3000/api/tasks/task-1 \
+  -H "X-API-Version: v1"
+```
+
+---
+
+## Testing Version Detection Priority
+
+### Explicit header overrides client registration
+```bash
+# Register as v1 client
+curl -X POST http://localhost:3000/api/clients/register \
+  -H "Content-Type: application/json" \
+  -d '{"clientId": "test-client", "version": "v1"}'
+
+# Use client ID but override with v3 version
+curl http://localhost:3000/api/tasks \
+  -H "X-Client-Id: test-client" \
+  -H "X-API-Version: v3"
+  
+# Should return v3 format (with priority and tags)
+```
+
+---
+
+## Expected Transformations
+
+### V1 ↔ V2 ↔ V3
+
+**V1 Task:**
+```json
+{
+  "id": "task-1",
+  "title": "Example",
+  "completed": false,
+  "createdAt": "2026-02-16T10:00:00.000Z"
+}
+```
+
+**Same task in V2:**
+```json
+{
+  "id": "task-1",
+  "title": "Example",
+  "status": "todo",
+  "dueDate": null,
+  "createdAt": "2026-02-16T10:00:00.000Z"
+}
+```
+
+**Same task in V3:**
+```json
+{
+  "id": "task-1",
+  "title": "Example",
+  "status": "todo",
+  "dueDate": null,
+  "priority": 3,
+  "tags": [],
+  "createdAt": "2026-02-16T10:00:00.000Z"
+}
+```
+
+---
+
+## Quick Test Suite
+
+Run these commands in sequence to verify the system:
+
+```bash
+# 1. Register test clients
+curl -X POST http://localhost:3000/api/clients/register -H "Content-Type: application/json" -d '{"clientId": "test-v1", "version": "v1"}'
+curl -X POST http://localhost:3000/api/clients/register -H "Content-Type: application/json" -d '{"clientId": "test-v2", "version": "v2"}'
+curl -X POST http://localhost:3000/api/clients/register -H "Content-Type: application/json" -d '{"clientId": "test-v3", "version": "v3"}'
+
+# 2. Create task as V3 (with all fields)
+curl -X POST http://localhost:3000/api/tasks -H "X-API-Version: v3" -H "Content-Type: application/json" -d '{"title": "Test Task", "status": "done", "priority": 5, "tags": ["test"]}'
+
+# 3. Read as V1 (should show completed=true)
+curl http://localhost:3000/api/tasks -H "X-API-Version: v1"
+
+# 4. Read as V2 (should show status="done", no priority/tags)
+curl http://localhost:3000/api/tasks -H "X-API-Version: v2"
+
+# 5. Read as V3 (should show full details)
+curl http://localhost:3000/api/tasks -H "X-API-Version: v3"
+```

@@ -1,0 +1,31 @@
+{
+  "name": "evolving-api",
+  "version": "1.0.0",
+  "description": "Evolving API version system with transformation gates using Hono and TypeScript",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "api",
+    "versioning",
+    "hono",
+    "typescript",
+    "adapter-pattern"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}
