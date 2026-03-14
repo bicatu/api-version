@@ -11,6 +11,10 @@
 
 </div>
 
+> 📄 **This repository accompanies the article [The Challenges of Evolving Your Service — API Versioning](https://medium.com/itnext/the-challenges-of-evolving-your-service-api-versioning-8008349a1154) on ITNEXT / Medium.**
+
+> 📬 **Enjoyed this? Subscribe to [Architecture Corner](https://architecturecorner.substack.com) — a newsletter covering software architecture, system design, and engineering practices.**
+
 ---
 
 <details>
@@ -19,7 +23,7 @@
 - [Concept](#-concept)
 - [Benefits](#benefits)
 - [Domain: Task Management](#-domain-task-management)
-  - [Version Evolution](#version-evolution)
+- [Version Evolution](#version-evolution)
 - [Architecture](#️-architecture)
 - [Getting Started](#-getting-started)
 - [API Endpoints](#-api-endpoints)
@@ -473,18 +477,6 @@ This project leverages modern TypeScript tooling and a lightweight web framework
 
 ---
 
-## �🔮 Future Enhancements
-
-- [ ] **Version Deprecation Warnings**: Add `X-Deprecated: true` header to V1 responses
-- [ ] **Metrics**: Track version usage to inform deprecation decisions
-- [ ] **Version Negotiation**: Allow clients to send preferred version list
-- [ ] **Webhook Versioning**: Apply same pattern to webhook payloads
-- [ ] **GraphQL Adapter**: Demonstrate versioning with GraphQL instead of REST
-- [ ] **Database Persistence**: Replace in-memory stores with real database
-- [ ] **Migration Assistant**: Tool to help clients upgrade between versions
-
----
-
 ## 📖 Learn More
 
 ### Related Patterns
@@ -496,6 +488,8 @@ This project leverages modern TypeScript tooling and a lightweight web framework
 
 ### Resources
 
+- [The Challenges of Evolving Your Service — API Versioning](https://medium.com/itnext/the-challenges-of-evolving-your-service-api-versioning-8008349a1154) — The article this project is based on
+- [Architecture Corner Newsletter](https://architecturecorner.substack.com) — Software architecture, system design, and engineering practices
 - [Hono Documentation](https://hono.dev/)
 - [API Versioning Best Practices](https://www.troyhunt.com/your-api-versioning-is-wrong-which-is/)
 - [Stripe API Versioning](https://stripe.com/blog/api-versioning) - Real-world example
