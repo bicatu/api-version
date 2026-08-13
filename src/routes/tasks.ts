@@ -18,10 +18,29 @@ const tasks = new Hono<Env>();
 
 /**
  * GET /api/tasks
- * List all tasks
+ * List all tasks, optionally sorted by dueDate
+ * Query params:
+ *   order: 'asc' (earliest first) | 'desc' (latest first); tasks with no dueDate always last
  */
 tasks.get('/', (c) => {
+  const order = c.req.query('order');
+  
+  if (order !== undefined && order !== 'asc' && order !== 'desc') {
+    return c.json({ error: "Order must be 'asc' or 'desc'" }, 400);
+  }
+  
   const allTasks = getAllTasks();
+  
+  if (order !== undefined) {
+    const direction = order === 'asc' ? 1 : -1;
+    allTasks.sort((a, b) => {
+      if (a.dueDate === null && b.dueDate === null) return 0;
+      if (a.dueDate === null) return 1;
+      if (b.dueDate === null) return -1;
+      return (Date.parse(a.dueDate) - Date.parse(b.dueDate)) * direction;
+    });
+  }
+  
   return jsonVersioned(c, allTasks);
 });
 

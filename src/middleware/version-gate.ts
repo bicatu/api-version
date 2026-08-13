@@ -79,6 +79,7 @@ export const versionGate = createMiddleware<Env>(async (c, next) => {
   c.set('apiVersion', 'v3');
   c.set('clientId', 'anonymous');
   await next();
+  return;
 });
 
 /**
