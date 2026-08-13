@@ -33,12 +33,17 @@ tasks.get('/', (c) => {
   
   if (order !== undefined) {
     const direction = order === 'asc' ? 1 : -1;
-    allTasks.sort((a, b) => {
-      if (a.dueDate === null && b.dueDate === null) return 0;
-      if (a.dueDate === null) return 1;
-      if (b.dueDate === null) return -1;
-      return (Date.parse(a.dueDate) - Date.parse(b.dueDate)) * direction;
+    const decorated = allTasks.map(task => {
+      const parsed = task.dueDate === null ? null : Date.parse(task.dueDate);
+      return { task, timestamp: parsed !== null && !Number.isNaN(parsed) ? parsed : null };
     });
+    decorated.sort((a, b) => {
+      if (a.timestamp === null && b.timestamp === null) return 0;
+      if (a.timestamp === null) return 1;
+      if (b.timestamp === null) return -1;
+      return (a.timestamp - b.timestamp) * direction;
+    });
+    return jsonVersioned(c, decorated.map(d => d.task));
   }
   
   return jsonVersioned(c, allTasks);
@@ -77,6 +82,11 @@ tasks.post('/', async (c) => {
     
     // Transform incoming data to V3 format
     const v3Data = transformToV3(body, apiVersion);
+    
+    // Validate dueDate
+    if (v3Data.dueDate !== null && v3Data.dueDate !== undefined && Number.isNaN(Date.parse(v3Data.dueDate))) {
+      return c.json({ error: 'Due date must be a valid date string or null' }, 400);
+    }
     
     // Create the task with V3 structure
     const newTask: V3Task = {
@@ -137,6 +147,9 @@ tasks.put('/:id', async (c) => {
     }
     
     if (body.dueDate !== undefined) {
+      if (body.dueDate !== null && Number.isNaN(Date.parse(body.dueDate))) {
+        return c.json({ error: 'Due date must be a valid date string or null' }, 400);
+      }
       updates.dueDate = body.dueDate;
     }
     
