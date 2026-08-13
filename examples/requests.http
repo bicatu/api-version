@@ -131,6 +131,18 @@ curl http://localhost:3000/api/tasks \
   -H "X-API-Version: v3"
 ```
 
+#### List tasks sorted by dueDate (ascending - earliest first)
+```bash
+curl "http://localhost:3000/api/tasks?order=asc" \
+  -H "X-API-Version: v3"
+```
+
+#### List tasks sorted by dueDate (descending - latest first)
+```bash
+curl "http://localhost:3000/api/tasks?order=desc" \
+  -H "X-API-Version: v3"
+```
+
 #### Create task as V3 client (with priority and tags)
 ```bash
 curl -X POST http://localhost:3000/api/tasks \

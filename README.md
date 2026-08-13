@@ -220,7 +220,7 @@ You should see the same tasks transformed into different formats! 🎉
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/tasks` | List all tasks |
+| GET | `/api/tasks?order=asc\|desc` | List all tasks, optionally sorted by dueDate (tasks without a due date are always last) |
 | GET | `/api/tasks/:id` | Get a single task |
 | POST | `/api/tasks` | Create a new task |
 | PUT | `/api/tasks/:id` | Update a task (partial update) |
